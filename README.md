@@ -65,11 +65,11 @@ docs/architecture.md
 ```text
 NL-TO-SQL-AGENT-main/
 ├── .gitignore
-├── AI_Usage_Note.md          <-- (We just created this!)
+├── AI_Usage_Note.md          
 ├── app.py
 ├── create_db.py
 ├── query_history.json
-├── README.md                 <-- (We just updated this!)
+├── README.md                 
 ├── requirements.txt
 ├── retail_sales.css
 ├── agent/
@@ -94,7 +94,7 @@ NL-TO-SQL-AGENT-main/
 │   ├── ecommerce.csv
 │   └── retail_sales_dataset.csv
 └── tests/
-    └── test_agent.py         <-- (Our consolidated happy path test suite!)
+    └── test_agent.py         
 
 ```
 
