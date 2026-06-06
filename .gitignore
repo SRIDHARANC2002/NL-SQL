@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+
+# Database (auto-generated, not source)
+database/test_sales.db
+
+# Saved queries (user-specific)
+saved_queries.json
+
+# Pytest cache
+.pytest_cache/
+.cache/
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

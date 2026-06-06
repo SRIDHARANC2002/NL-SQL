@@ -1,0 +1,122 @@
+[
+  {
+    "question": "split which product got sale highly",
+    "sql": "SELECT StockCode FROM ecommerce GROUP BY StockCode ORDER BY COUNT(InvoiceNo) DESC LIMIT 1",
+    "confidence": 45,
+    "timestamp": "2026-06-06 12:28"
+  },
+  {
+    "question": "which product got sale high in an month",
+    "sql": "SELECT StockCode FROM ecommerce GROUP BY SUBSTR(InvoiceDate, 1, 7) ORDER BY SUM(Quantity) DESC LIMIT 1",
+    "confidence": 45,
+    "timestamp": "2026-06-06 12:29"
+  },
+  {
+    "question": "which county has an highest  customers",
+    "sql": "SELECT Country FROM ecommerce GROUP BY Country ORDER BY COUNT(CustomerID) DESC LIMIT 1",
+    "confidence": 50,
+    "timestamp": "2026-06-06 12:31"
+  },
+  {
+    "question": "WHICH PRODUCT GOT SALED HIGHLY",
+    "sql": "SELECT Product_Category FROM retail_sales_dataset GROUP BY Product_Category ORDER BY AVG(Total_Amount) DESC LIMIT 1",
+    "confidence": 55,
+    "timestamp": "2026-06-06 12:37"
+  },
+  {
+    "question": "SPLIT BASEDON THE AGE GROUP PRODUCTS",
+    "sql": "SELECT Product_Category FROM retail_sales_dataset GROUP BY SUBSTR(Date, 1, 7)",
+    "confidence": 60,
+    "timestamp": "2026-06-06 12:38"
+  },
+  {
+    "question": "SPLIT BASEDON THE AGE GROUP PRODUCTS WHICH AGE GROUP HAD HIGH",
+    "sql": "SELECT Product_Category FROM retail_sales_dataset GROUP BY Age HAVING MAX(Total_Amount)",
+    "confidence": 60,
+    "timestamp": "2026-06-06 12:39"
+  },
+  {
+    "question": "SPLIT MALE AND FEMALE CAEGER AND AGE ALSO WHAT THEY HAVE BOYUGT ",
+    "sql": "SELECT DISTINCT Gender, Age, Product_Category, SUM(Quantity * Price_per_Unit) AS Total_Amount \nFROM retail_sales_dataset \nWHERE Date LIKE '%/%/%' AND Gender = 'Male' OR Gender = 'Female'",
+    "confidence": 45,
+    "timestamp": "2026-06-06 12:46"
+  },
+  {
+    "question": "BASED ONT HE PRODUCT SPLIT THE AGE AND ALO WHAY THEY HAVE PURCHED MOST ",
+    "sql": "SELECT Product_Category, Age, SUM(Quantity * Price_per_Unit) AS Total_Spent \nFROM retail_sales_dataset \nGROUP BY Product_Category, Age \nORDER BY Total_Spent DESC",
+    "confidence": 50,
+    "timestamp": "2026-06-06 12:47"
+  },
+  {
+    "question": "BASED ONT HE PRODUCT SPLIT THE AGE AND ALO WHAY THEY HAVE PURCHED MOST ",
+    "sql": "SELECT Product_Category, Age, SUM(Quantity * Price_per_Unit) AS Total_Spent \nFROM retail_sales_dataset \nGROUP BY Product_Category, Age \nORDER BY Total_Spent DESC;",
+    "confidence": 50,
+    "timestamp": "2026-06-06 12:51"
+  },
+  {
+    "question": "Show all sales records",
+    "sql": "SELECT * FROM retail_sales_dataset",
+    "confidence": 45,
+    "timestamp": "2026-06-06 12:53"
+  },
+  {
+    "question": "What is the total sale amount?",
+    "sql": "SELECT SUM(Total_Amount) FROM retail_sales_dataset",
+    "confidence": 65,
+    "timestamp": "2026-06-06 12:57"
+  },
+  {
+    "question": "Show total sales by region",
+    "sql": "SELECT SUM(Total_Amount) FROM retail_sales_dataset GROUP BY SUBSTR(Date, 1, 7);",
+    "confidence": 65,
+    "timestamp": "2026-06-06 12:58"
+  },
+  {
+    "question": "what is the total sales",
+    "sql": "SELECT SUM(Total_Amount) FROM retail_sales_dataset",
+    "confidence": 65,
+    "timestamp": "2026-06-06 13:06"
+  },
+  {
+    "question": "Which region generated the highest revenue?",
+    "sql": "SELECT Product_Category FROM retail_sales_dataset GROUP BY Product_Category ORDER BY SUM(Total_Amount) DESC LIMIT 1",
+    "confidence": 70,
+    "timestamp": "2026-06-06 13:12"
+  },
+  {
+    "question": "Show sales by month",
+    "sql": "SELECT Date, SUM(Total_Amount) FROM retail_sales_dataset GROUP BY SUBSTR(Date, 1, 7)",
+    "confidence": 40,
+    "timestamp": "2026-06-06 13:54"
+  },
+  {
+    "question": "Which month had the highest sales?",
+    "sql": "SELECT SUBSTR(Date, 1, 7) AS Month, SUM(Total_Amount) FROM retail_sales_dataset GROUP BY SUBSTR(Date, 1, 7) ORDER BY SUM(Total_Amount) DESC LIMIT 1",
+    "confidence": 40,
+    "timestamp": "2026-06-06 13:56"
+  },
+  {
+    "question": "Which month had the highest sales?",
+    "sql": "SELECT SUBSTR(Date, 1, 7) AS Date FROM retail_sales_dataset GROUP BY SUBSTR(Date, 1, 7) ORDER BY SUM(Total_Amount) DESC LIMIT 1",
+    "confidence": 45,
+    "timestamp": "2026-06-06 13:57"
+  },
+  {
+    "question": "Which customer spent the most money?",
+    "sql": "SELECT Customer_ID FROM retail_sales_dataset ORDER BY Total_Amount DESC LIMIT 1",
+    "confidence": 35,
+    "timestamp": "2026-06-06 13:58"
+  },
+  {
+    "question": "Which customer spent the most money?",
+    "sql": "SELECT Customer_ID FROM retail_sales_dataset ORDER BY Total_Amount DESC LIMIT 1",
+    "confidence": 35,
+    "timestamp": "2026-06-06 14:04"
+  },
+  {
+    "question": "Which customer spent the most money?",
+    "sql": "SELECT Customer_ID FROM retail_sales_dataset ORDER BY Total_Amount DESC LIMIT 1",
+    "confidence": 35,
+    "timestamp": "2026-06-06 14:06"
+  }
+]

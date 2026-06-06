@@ -1,0 +1,26 @@
+/* Retail Sales custom theme */
+body {
+  background: linear-gradient(135deg, #f0f4ff, #e0e8ff);
+  color: #2c3e50;
+}
+
+/* Sidebar background */
+[data-testid="stSidebar"] {
+  background-color: #fff5e6;
+}
+
+/* Card styling */
+.metric-card {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  border-radius: 12px;
+}
+
+/* Badge colors */
+.badge-status {
+  font-weight: 600;
+}
+
+/* Header fonts */
+h1, h2, h3 {
+  font-family: 'Outfit', sans-serif;
+}
