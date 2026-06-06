@@ -63,32 +63,39 @@ docs/architecture.md
 ## Project Structure
 
 ```text
-NL-To-SQL-Agent/
-│
+NL-TO-SQL-AGENT-main/
+├── .gitignore
+├── AI_Usage_Note.md          <-- (We just created this!)
 ├── app.py
 ├── create_db.py
-│
+├── query_history.json
+├── README.md                 <-- (We just updated this!)
+├── requirements.txt
+├── retail_sales.css
 ├── agent/
-│   ├── schema_tool.py
-│   ├── sql_generator.py
-│   ├── validator.py
-│   ├── sql_executor.py
+│   ├── chart_generator.py
 │   ├── explanation_generator.py
-│   ├── confidence_score.py
-│   └── chart_generator.py
-│
+│   ├── insight_generator.py
+│   ├── report_generator.py
+│   ├── schema_tool.py
+│   ├── sql_executor.py
+│   ├── sql_generator.py
+│   └── validator.py
 ├── database/
+│   ├── dynamic_db.py
+│   ├── schema_reader.py
+│   ├── test_sales.db
 │   └── uploaded_data.db
-│
-├── sample_data/
-│   └── sales.csv
-│
-├── tests/
-│
 ├── docs/
+│   ├── ai_usage_note.md
 │   └── architecture.md
-│
-└── README.md
+├── sample_data/
+│   ├── analytics_poc (1).db
+│   ├── ecommerce.csv
+│   └── retail_sales_dataset.csv
+└── tests/
+    └── test_agent.py         <-- (Our consolidated happy path test suite!)
+
 ```
 
 ---
