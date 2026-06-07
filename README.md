@@ -494,11 +494,7 @@ Watch the project demonstration here:
 # Team Resumes
 
 - [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing)
-- [Team Member 2 Resume](https://your-resume-link)
-- [Team Member 3 Resume](https://your-resume-link)
 
 
 
-# License
 
-This project was developed for academic, learning, and evaluation purposes.
