@@ -27,7 +27,7 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 Detailed AI usage notes are available in:
 [AI_Usage_Note](https://drive.google.com/file/d/1d-h_Skb19jjVHGGMdkVTKDBGQxIeKwxH/view?usp=sharing)
 
-## What the app does
+# What the app does
 
 Instead of writing SQL manually, upload a dataset and ask questions in plain English. The app:
 
