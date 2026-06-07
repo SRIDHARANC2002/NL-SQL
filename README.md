@@ -8,11 +8,13 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 ---
 # Team Members
 
-| Name          |   RESUME |                                                
-| ------------- | 
-| Sridharan     | [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing)
-| Sriram        | 
-| Srivignesh    |          |
+## Team Members
+
+| Name       | Resume |
+|------------|--------|
+| Sridharan  | [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing) |
+| Sriram     | Coming Soon |
+| Srivignesh | Coming Soon |
 
 ## What the app does
 
