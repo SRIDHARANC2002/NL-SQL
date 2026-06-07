@@ -3,7 +3,7 @@ import csv
 import sqlite3
 
 def init_db():
-    retail_csv  = os.path.join("database", "retail_sales_dataset.csv")
+    retail_csv  = os.path.join("sample_data", "retail_sales_dataset.csv")
     legacy_csv  = os.path.join("sample_data", "sales.csv")
     db_path     = os.path.join("database", "uploaded_data.db")
 

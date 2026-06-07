@@ -1,12 +1,17 @@
 import os
+import sys
 import sqlite3
 import pandas as pd
 import pytest
 from plotly.graph_objs import Figure
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 # Import known agent modules
 from agent.validator import validate_sql
 from agent.chart_generator import create_chart
+from agent.schema_tool import get_schema
+from agent.sql_generator import clean_sql
 
 TEST_DB_PATH = "database/test_sales.db"
 
@@ -45,6 +50,37 @@ class TestValidator:
 
     def test_invalid_update(self):
         assert validate_sql("UPDATE sales SET revenue=0;") == False
+
+    def test_with_clause_allowed(self):
+        assert validate_sql("WITH cte AS (SELECT * FROM sales) SELECT * FROM cte") == True
+
+    def test_string_literal_drop_keyword(self):
+        assert validate_sql("SELECT * FROM sales WHERE region = 'DROP';") == True
+
+    def test_multiple_statements_rejected(self):
+        assert validate_sql("SELECT * FROM sales; DROP TABLE sales;") == False
+
+
+class TestSqlGenerator:
+    def test_clean_sql_strips_code_block(self):
+        raw_text = """```sql
+        -- comment
+        SELECT * FROM sales;
+        ```"""
+        assert clean_sql(raw_text) == "SELECT * FROM sales;"
+
+    def test_clean_sql_removes_markdown(self):
+        raw_text = "Here is the SQL:\n```sql\nSELECT id FROM sales;\n```"
+        assert clean_sql(raw_text) == "SELECT id FROM sales;"
+
+
+class TestSchemaTool:
+    def test_get_schema_returns_table_and_columns(self):
+        schema = get_schema(TEST_DB_PATH)
+        assert "Table: sales" in schema
+        assert "product_category (TEXT)" in schema
+        assert "revenue (REAL)" in schema
+
 
 # ── Chart Generator Tests ─────────────────────────────────────────────────────
 class TestChartGenerator:

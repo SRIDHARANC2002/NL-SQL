@@ -1,145 +1,133 @@
-# AI Usage & Prompt Engineering Note
+# AI Usage Note
 
-This document summarizes how AI is incorporated into the **NL-To-SQL Analytics Agent**, the prompt engineering design, local LLM challenges encountered, and future improvement paths.
+## Project Name
 
----
+NL-To-SQL Analytics Agent
 
-## 1. Role of AI
+## AI Tools Used
 
-A local Large Language Model (**Ollama llama3.2**) powers two core tasks:
-
-1. **Natural Language → SQL** (`agent/sql_generator.py`): Converts plain English questions into valid SQLite queries against the `retail_sales` and `sales` tables.
-2. **SQL Explanation** (`agent/explanation_generator.py`): Translates generated SQL logic into plain business language for non-technical users.
-
-When Ollama is offline or `llama3.2` is not pulled, both tasks automatically fall back to a rule-based engine with no user-facing disruption.
+* ChatGPT
+* Ollama (Llama 3.2)
 
 ---
 
-## 2. Prompt Engineering Approach
+## 1. What AI Helped With During Development
 
-### SQL Generation Prompt Structure
+AI was used as a development assistant throughout the project lifecycle. The following areas were supported by AI:
 
-```text
-You are a SQLite database expert. Translate the user's natural language question
-into a single valid SQLite query.
+### Project Architecture
 
-Database Schema:
-Table: retail_sales
-Columns:
-  - transaction_id (INTEGER) PRIMARY KEY
-  - date (TEXT)
-  - customer_id (TEXT)
-  - gender (TEXT)
-  - age (INTEGER)
-  - product_category (TEXT)
-  - quantity (INTEGER)
-  - price_per_unit (REAL)
-  - total_amount (REAL)
+* Assisted in designing the modular architecture of the application.
+* Suggested separation of functionalities into modules such as:
 
-Table: sales
-Columns:
-  - order_id (INTEGER) PRIMARY KEY
-  - product (TEXT)
-  - category (TEXT)
-  - region (TEXT)
-  - sales (REAL)
-  - date (TEXT)
+  * schema_tool.py
+  * sql_generator.py
+  * validator.py
+  * sql_executor.py
+  * chart_generator.py
+  * explanation_generator.py
+  * insight_generator.py
 
-User Question:
-Total revenue by product category
+### Streamlit Dashboard Development
 
-Strict Prompt Rules:
-1. ONLY use the tables and columns mentioned in the schema above.
-2. Return ONLY the raw SQL query.
-3. Do NOT include explanations, markdown tags (like ```sql), or other text.
-4. SQLite has no MONTH() or YEAR(). Use SUBSTR(date, 1, 7) for 'YYYY-MM' formatting.
-```
+* Assisted in building the Streamlit user interface.
+* Suggested layouts for query input, result display, and visualization sections.
+* Helped improve responsiveness and overall user experience.
 
-### Explanation Prompt Structure
+### SQL Generation Workflow
 
-```text
-You are a database analyst explaining query logic to business users.
-Explain what this SQL query does in plain, concise English.
-Describe what fields it retrieves, what calculations it performs, and any sorting.
-Keep it strictly under two sentences. Do NOT use technical jargon like
-'SELECT statement' or 'GROUP BY clause' — explain it conceptually.
+* Assisted in designing the Natural Language to SQL workflow.
+* Helped create prompts for generating SQL queries using Ollama.
+* Suggested fallback mechanisms when the local AI model is unavailable.
 
-SQL Query:
-SELECT product_category, SUM(total_amount) AS revenue
-FROM retail_sales
-GROUP BY product_category
-ORDER BY revenue DESC;
-```
+### SQL Validation and Security
 
-### Key Prompt Design Decisions
+* Assisted in implementing validation rules to ensure safe query execution.
+* Suggested techniques for blocking unsafe SQL commands such as:
 
-| Decision | Reason |
-|---|---|
-| Role assignment | Anchors model behavior as a database expert |
-| Full schema injection | Prevents hallucinated table/column names |
-| Raw SQL only instruction | Eliminates markdown wrappers and prose |
-| SQLite-specific reminders | Prevents MySQL/PostgreSQL function usage |
-| Two-sentence explanation limit | Keeps outputs concise for the UI card |
-| Low temperature (0.1 for SQL, 0.2 for explanation) | Reduces randomness for deterministic output |
+  * DROP
+  * DELETE
+  * UPDATE
+  * INSERT
+  * ALTER
+  * TRUNCATE
+  * CREATE
+  * REPLACE
+
+### Data Visualization
+
+* Assisted in generating Plotly charts.
+* Suggested chart selection logic for:
+
+  * Bar Charts
+  * Line Charts
+  * Pie Charts
+  * Scatter Charts
+
+### Testing and Debugging
+
+* Helped identify and fix coding issues.
+* Assisted in creating test cases for:
+
+  * Schema extraction
+  * SQL validation
+  * SQL execution
+  * Chart generation
 
 ---
 
-## 3. Fallback Rule-Based Engine
+## 2. Challenges Encountered with AI
 
-When Ollama is unavailable, `get_fallback_sql()` in `sql_generator.py` handles 14 query patterns:
+### Schema Hallucination
 
-**Retail Sales queries:**
-- Total revenue by category
-- Revenue by gender
-- Top 5 customers by spending
-- Monthly revenue trend
-- Best selling category by quantity
-- Average order value
-- Any question mentioning: customer, transaction, product_category
+At times, AI generated SQL queries using non-existent table names or columns when schema information was not provided explicitly.
 
-**Legacy Sales queries:**
-- Total sales by region
-- Highest selling product
-- Average sales
-- Monthly sales trend
-- Top 5 products by revenue
-- Sales by category / product / region
+### Context Issues
 
-Similarly, `get_fallback_explanation()` in `explanation_generator.py` pattern-matches against SQL structure (`AVG`, `GROUP BY`, `LIMIT`, `SUBSTR`) to generate template-based explanations for both datasets.
+When project files were renamed or modified, AI occasionally referenced outdated modules or functions.
+
+### SQL Accuracy
+
+Some generated SQL queries required manual verification and correction to match the database schema accurately.
+
+### UI Adjustments
+
+Several iterations were required to achieve the final Streamlit layout and visualization appearance.
 
 ---
 
-## 4. Challenges & Solutions
+## 3. Best Prompts Used
 
-| Challenge | Solution |
-|---|---|
-| LLM wraps SQL in ```sql blocks | `clean_sql()` regex strips markdown wrappers |
-| LLM uses MySQL functions (MONTH, YEAR) | Prompt explicitly instructs SUBSTR usage |
-| LLM hallucinates column names | `confidence_score.py` penalizes unknown tokens |
-| LLM returns prose instead of SQL | `clean_sql()` + validator rejects non-SELECT output |
-| Ollama not installed / offline | Auto-detected via `/api/tags` ping, seamless fallback |
-| Model not pulled (llama3.2 missing) | Sidebar badge warns user, fallback activates |
+### Prompt 1
 
----
+Generate a SQLite query for the user's question using only the provided database schema. Return only executable SQL.
 
-## 5. Confidence Scoring System
+### Prompt 2
 
-The confidence score (0–100%) provides transparency on query reliability:
+Review the generated SQL query and determine whether it contains unsafe operations such as DROP, DELETE, UPDATE, INSERT, ALTER, CREATE, REPLACE, or multiple statements.
 
-| Dimension | Max Points | Method |
-|---|---|---|
-| Schema Alignment | 40 | Checks referenced tables/columns against `VALID_TABLES` and `VALID_COLUMNS` |
-| Syntax Validity | 30 | Runs `EXPLAIN` on SQLite — passes only if query is executable |
-| Intent Alignment | 30 | Matches NL keywords (average, total, highest) to SQL operations (AVG, SUM, DESC) |
+### Prompt 3
 
-A score of **0%** is automatically assigned to any query that fails the safety validator.
+Create a responsive Streamlit dashboard that accepts natural language questions, displays generated SQL, query results, and Plotly visualizations.
+
+### Prompt 4
+
+Generate suitable Plotly visualizations automatically based on the structure of the query result dataset.
+
+### Prompt 5
+
+Review the entire repository and identify any missing deliverables, documentation, datasets, tests, or project requirements.
 
 ---
 
-## 6. Limitations & Future Improvements
+## 4. Human Contribution
 
-- **RAG for large schemas**: For databases with many tables, full schema injection bloats the prompt. A retrieval-augmented generation (RAG) approach would inject only the relevant tables based on the user's question.
-- **Formal SQL parsing**: Replacing the token-based confidence scorer with a proper SQL AST parser (e.g., `sqlglot` or `sqlparse`) would enable more accurate structural validation.
-- **Streaming responses**: The current Ollama call uses `stream: false`. Enabling streaming would allow the UI to show live token-by-token SQL generation.
-- **Multi-turn conversation**: Future versions could maintain conversation context, allowing follow-up questions like "Now filter that by Female customers only."
-- **Cloud LLM option**: Adding an optional Gemini or OpenAI API path alongside Ollama would provide a cloud-based fallback for environments where local models are impractical.
+Although AI assisted with code generation, debugging, testing, and documentation, all implementation decisions, integration work, testing, validation, and final review were performed manually.
+
+The developer reviewed all AI-generated outputs, verified SQL execution, validated results, and ensured that the final application met the project requirements.
+
+---
+
+## Conclusion
+
+AI was used as a development assistant to accelerate coding, debugging, testing, visualization, and documentation tasks. Final implementation, verification, and project integration were completed manually by the development team.

@@ -122,6 +122,54 @@ table td:last-child {
     text-align: right;
 }
 
+.dataset-summary-card {
+    background: #ffffff;
+    color: #000000;
+    padding: 18px 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    margin-top: 12px;
+}
+
+.dataset-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.dataset-summary-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.dataset-summary-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+}
+
+.dataset-summary-fields {
+    display: block;
+}
+
+.dataset-summary-list {
+    margin: 6px 0 0 18px;
+    padding: 0;
+    list-style-position: inside;
+}
+
+.dataset-summary-list li {
+    margin-bottom: 6px;
+}
+
+.dataset-summary-field {
+    color: #047857;
+    font-weight: 700;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -240,25 +288,32 @@ st.markdown(
     "This dataset has been uploaded successfully. Use the fields below when asking questions in plain English."
 )
 
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown(
-        f"**Rows:** {get_row_count()}  \n"
-        f"**Columns:** {len(get_column_names())}"
-    )
-
-with col2:
-    st.markdown(
-        "**Table:** `uploaded_data`"
-    )
-
 columns = get_column_names()
-if columns:
-    st.markdown("**Fields:**")
-    st.markdown(
-        "\n".join([f"- `{col}`" for col in columns])
-    )
+row_count = get_row_count()
+column_count = len(columns)
+
+summary_html = f"""
+<div class="dataset-summary-card">
+    <div class="dataset-summary-row">
+        <span class="dataset-summary-label">Rows:</span>
+        <span class="dataset-summary-value">{row_count}</span>
+        <span class="dataset-summary-label">Columns:</span>
+        <span class="dataset-summary-value">{column_count}</span>
+    </div>
+    <div class="dataset-summary-row">
+        <span class="dataset-summary-label">Table:</span>
+        <span class="dataset-summary-value">uploaded_data</span>
+    </div>
+    <div class="dataset-summary-row dataset-summary-fields">
+        <span class="dataset-summary-label">Fields:</span>
+        <ul class="dataset-summary-list">
+            {''.join([f'<li><span class="dataset-summary-field">{col}</span></li>' for col in columns])}
+        </ul>
+    </div>
+</div>
+"""
+
+st.markdown(summary_html, unsafe_allow_html=True)
 
 st.subheader("Ask Your Question")
 
