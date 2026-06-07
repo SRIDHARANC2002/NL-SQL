@@ -81,10 +81,6 @@ The platform supports both local and cloud LLM providers through a provider-sele
 * Scatter Charts
 * Dynamic chart selection
 
-## Export Features
-
-* Download query results as CSV
-* Download chart as PNG image
 
 ## Security Features
 
@@ -131,8 +127,7 @@ Results Summary
 Results Table
             ↓
 Interactive Visualizations
-            ↓
-CSV Export & Chart Download
+
 ```
 
 ---
