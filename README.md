@@ -5,7 +5,6 @@ A Streamlit analytics assistant that converts your plain-English questions into 
 
 It validates the generated SQL, executes it on SQLite, explains the result, and visualizes it with Plotly.
 
----
 # Team Members
 
 | Name       | Resume |
@@ -13,6 +12,20 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 | Sridharan  | [Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing) |
 | Sriram     | Coming Soon |
 | Srivignesh | Coming Soon |
+
+---
+# Watch the project demonstration here:
+
+[Demo Video](https://drive.google.com/file/d/1gYotbmAP1YiK5HqpsCj6UzSHA4e389Gy/view?usp=sharing)
+
+[TEST_CASES.txt](https://drive.google.com/file/d/1hPyKMJ9VnmND1YhonZ5B9zJPWitG9zCH/view?usp=sharing)
+
+[SampleData](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
+
+# AI Usage Documentation
+
+Detailed AI usage notes are available in:
+[AI_Usage_Note](https://drive.google.com/file/d/1d-h_Skb19jjVHGGMdkVTKDBGQxIeKwxH/view?usp=sharing)
 
 ## What the app does
 
@@ -451,16 +464,6 @@ The application enforces a strict read-only execution model.
 
 ---
 
-# Team Members
-
-| Name          |   RESUME |                                                
-| ------------- | 
-| Sridharan     | [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing)
-| Sriram        | 
-| Srivignesh    |          |
-
----
-
 # Deliverables
 
 * Source Code Repository
@@ -478,24 +481,8 @@ The application enforces a strict read-only execution model.
 Detailed AI usage notes are available in:
 
 ```text
-[AI_Usage_Note] //https://drive.google.com/file/d/1d-h_Skb19jjVHGGMdkVTKDBGQxIeKwxH/view?usp=sharing
+
 ```
----
-# Demo Video
-
-Watch the project demonstration here:
-
-[Demo Video](https://drive.google.com/file/d/1VMVyYIUD94fgkV2U6hTwhfnCZN9KTd8w/view?usp=sharing)
-
-[TEST_CASES.txt](https://drive.google.com/file/d/1hPyKMJ9VnmND1YhonZ5B9zJPWitG9zCH/view?usp=sharing)
-
-[SampleData](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
-
----
-
-# Team Resumes
-
-- [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing)
 
 
 
