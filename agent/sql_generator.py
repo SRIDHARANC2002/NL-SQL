@@ -4,9 +4,12 @@ import re
 OLLAMA_URL = "http://localhost:11434"
 MODEL_NAME = "llama3.2"
 
+<<<<<<< HEAD
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL_NAME = "llama-3.3-70b-versatile"
 
+=======
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 def check_ollama_status():
     """
@@ -89,9 +92,15 @@ def clean_sql(response_text):
     return sql.strip()
 
 
+<<<<<<< HEAD
 def generate_sql(question, schema, provider="ollama", api_key=None):
     """
     Convert natural language question to SQL using the chosen provider.
+=======
+def generate_sql(question, schema):
+    """
+    Convert natural language question to SQL.
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
     """
 
     prompt = f"""
@@ -111,7 +120,10 @@ CRITICAL RULES FOR JOIN QUERIES:
 4. NEVER reference a column from the wrong table. Check schema carefully.
 5. Verify JOIN conditions use columns that actually exist in those tables.
 6. All columns in GROUP BY must match table ownership in schema.
+<<<<<<< HEAD
 7. If a column name contains spaces or is a reserved keyword, ALWAYS quote it using double quotes (e.g., "column name").
+=======
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 GENERAL RULES:
 
@@ -169,6 +181,7 @@ User Question:
 SQL:
 """
 
+<<<<<<< HEAD
     if provider == "groq":
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -278,6 +291,46 @@ def agent_loop_generate_and_run(question, schema, execute_func, validate_func, p
             last_error = str(e)
             
     raise Exception(f"Agent Loop Failed after {max_retries} retries. Last Error: {last_error}\nLast SQL attempted: {last_sql}")
+=======
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": prompt,
+        "stream": False,
+        "options": {
+            "temperature": 0.1,
+            "top_p": 0.9
+        }
+    }
+
+    try:
+
+        response = requests.post(
+            f"{OLLAMA_URL}/api/generate",
+            json=payload,
+            timeout=60
+        )
+
+        if response.status_code != 200:
+            raise Exception(
+                f"Ollama returned {response.status_code}"
+            )
+
+        raw_response = response.json().get(
+            "response",
+            ""
+        )
+
+        sql = clean_sql(raw_response)
+
+        return sql
+
+    except Exception as e:
+
+        raise Exception(
+            f"SQL Generation Failed: {str(e)}"
+        )
+
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 if __name__ == "__main__":
 

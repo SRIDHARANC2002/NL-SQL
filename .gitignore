@@ -3,9 +3,13 @@ __pycache__/
 *.py[cod]
 *.pyo
 .env
+<<<<<<< HEAD
 .env
 __pycache__/
 *.pyc
+=======
+
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 # Database (auto-generated, not source)
 database/test_sales.db
 

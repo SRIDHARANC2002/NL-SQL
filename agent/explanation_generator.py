@@ -4,9 +4,12 @@ import re
 OLLAMA_URL = "http://localhost:11434"
 MODEL_NAME = "llama3.2"
 
+<<<<<<< HEAD
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL_NAME = "llama-3.3-70b-versatile"
 
+=======
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 def fallback_explanation(sql: str):
     """
@@ -64,7 +67,11 @@ def clean_response(text: str):
     return text.strip()
 
 
+<<<<<<< HEAD
 def explain_sql(sql: str, provider="ollama", api_key=None):
+=======
+def explain_sql(sql: str):
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
     """
     Generate business explanation for SQL query.
     """
@@ -90,6 +97,7 @@ SQL Query:
 Explanation:
 """
 
+<<<<<<< HEAD
     if provider == "groq":
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -150,3 +158,55 @@ Explanation:
 
 if __name__ == "__main__":
     pass
+=======
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": prompt,
+        "stream": False,
+        "options": {
+            "temperature": 0.2
+        }
+    }
+
+    try:
+
+        response = requests.post(
+            f"{OLLAMA_URL}/api/generate",
+            json=payload,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            return fallback_explanation(sql)
+
+        explanation = (
+            response.json()
+            .get("response", "")
+            .strip()
+        )
+
+        explanation = clean_response(explanation)
+
+        if not explanation:
+            return fallback_explanation(sql)
+
+        return explanation
+
+    except Exception:
+
+        return fallback_explanation(sql)
+
+
+if __name__ == "__main__":
+
+    sample_sql = """
+    SELECT department,
+           AVG(salary)
+    FROM uploaded_data
+    GROUP BY department
+    """
+
+    print(
+        explain_sql(sample_sql)
+    )
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7

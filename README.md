@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NL → SQL Analytics Agent
 
 A Streamlit analytics assistant that converts your plain-English questions into **safe, read-only SQLite (SELECT) queries** over your uploaded dataset.
@@ -16,6 +17,15 @@ Instead of writing SQL manually, upload a dataset and ask questions in plain Eng
 4. Executes the query on your uploaded data
 5. Shows the results table + charts + explanation
 
+=======
+# NL-To-SQL Analytics Agent
+
+## DE-01: Schema-Grounded Text-to-SQL Agent
+
+An AI-powered analytics platform that enables business users to query SQLite databases and datasets using natural language.
+
+Instead of writing SQL manually, users can upload a dataset, ask questions in plain English, generate SQL automatically using AI, edit queries manually if required, and visualize results through interactive charts.
+>>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 The platform supports both local and cloud LLM providers through a provider-selection interface.
 
