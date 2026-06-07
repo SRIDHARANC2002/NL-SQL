@@ -476,14 +476,6 @@ The application enforces a strict read-only execution model.
 
 ---
 
-# AI Usage Documentation
-
-Detailed AI usage notes are available in:
-
-```text
-
-```
-
 
 
 
