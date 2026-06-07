@@ -12,7 +12,7 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 
 | Name       | Resume |
 |------------|--------|
-| Sridharan  | [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing) |
+| Sridharan  | Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing) |
 | Sriram     | Coming Soon |
 | Srivignesh | Coming Soon |
 
