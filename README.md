@@ -10,7 +10,7 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 | Name       | Resume |
 |------------|--------|
 | Sridharan  | [Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing) |
-| Sriram     | Coming Soon |
+| Sriram     | [Resume](https://drive.google.com/drive/u/0/folders/1V8Tf_3PZyQ0Hsf8bBuMQUSzmzv4wgu_G) |
 | Srivignesh | Coming Soon |
 
 ---
