@@ -430,8 +430,10 @@ The system is designed for analytics and reporting. Database write operations ar
 Watch the project demonstration here:
 
 [Demo Video](https://your-demo-video-link)
+
 [TEST_CASES.txt](https://drive.google.com/file/d/1hPyKMJ9VnmND1YhonZ5B9zJPWitG9zCH/view?usp=sharing)
-[SampleData] (https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
+
+[SampleData](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
 
 ---
 
