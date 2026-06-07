@@ -431,11 +431,11 @@ The application enforces a strict read-only execution model.
 
 # Team Members
 
-| Name          | Role                                                      |
-| ------------- | --------------------------------------------------------- |
-| Sridharan     | Full Stack Development, AI Integration, Agent Development |
-| Team Member 2 | Frontend Development                                      |
-| Team Member 3 | Testing & Documentation                                   |
+| Name          |                                                     
+| ------------- | 
+| Sridharan     | 
+| Team Member 2 | 
+| Team Member 3 |
 
 ---
 
@@ -464,8 +464,10 @@ Detailed AI usage notes are available in:
 Watch the project demonstration here:
 
 [Demo Video](https://your-demo-video-link)
+
 [TEST_CASES.txt](https://drive.google.com/file/d/1hPyKMJ9VnmND1YhonZ5B9zJPWitG9zCH/view?usp=sharing)
-[SampleData] (https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
+
+[SampleData](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
 
 ---
 
