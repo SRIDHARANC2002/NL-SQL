@@ -25,7 +25,7 @@ Instead of writing SQL manually, upload a dataset and ask questions in plain Eng
 An AI-powered analytics platform that enables business users to query SQLite databases and datasets using natural language.
 
 Instead of writing SQL manually, users can upload a dataset, ask questions in plain English, generate SQL automatically using AI, edit queries manually if required, and visualize results through interactive charts.
->>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
+
 
 The platform supports both local and cloud LLM providers through a provider-selection interface.
 
