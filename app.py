@@ -8,24 +8,19 @@ from database.dynamic_db import (
     get_row_count,
     get_column_names
 )
-
 from agent.sql_generator import (
     generate_sql,
     check_ollama_status
 )
 from agent.agent_loop import agent_loop_generate_and_run
-
 from agent.validator import validate_sql
 from agent.sql_executor import execute_sql
 from agent.chart_generator import create_chart
 from agent.explanation_generator import explain_sql
-# from agent.insight_generator import generate_insights
-
 
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
-
 st.set_page_config(
     page_title="NL → SQL Analytics Agent",
     page_icon="📊",
@@ -35,141 +30,225 @@ st.set_page_config(
 # --------------------------------------------------
 # CUSTOM STYLING
 # --------------------------------------------------
-
 st.markdown("""
 <style>
 
+/* ---------- FONT & BASE ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+    --brand: #4f46e5;
+    --brand-dark: #4338ca;
+    --brand-light: #6366f1;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+}
+
+.main .block-container {
+    padding-top: 2.2rem;
+    max-width: 1250px;
+}
+
+/* ---------- HEADINGS ---------- */
 .main-title {
-    text-align:center;
-    font-size:42px;
-    font-weight:bold;
-    margin-bottom:10px;
+    text-align: center;
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
 }
 
 .sub-title {
-    text-align:center;
-    color:#666;
-    margin-bottom:25px;
-}
-
-.metric-box {
-    padding:15px;
-    border-radius:10px;
-    background:#f8f9fa;
-    border:1px solid #ddd;
-}
-
-/* Style the primary button placed in the left column */
-div.stButton > button:first-child {
-    background-color: #2b6cb0;
-    color: #ffffff;
-    height: 38px;
-    width: 140px;
-    border-radius: 8px;
-    border: 1px solid #1e4367;
-    font-weight: 600;
-}
-
-div.stButton > button:first-child:hover {
-    background-color: #1f5a96;
-}
-
-.summary-table {
-    width: 400px;
-    margin: 15px 0;
-    border-collapse: collapse;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.summary-table th {
-    background: #1e293b;
-    color: white;
-    text-align: left;
-    padding: 12px;
-}
-
-.summary-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.summary-table td:last-child {
     text-align: center;
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 28px;
+}
+
+h2, h3 {
+    color: var(--ink) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.3px;
+}
+
+/* ---------- BUTTONS ---------- */
+div.stButton > button {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
     font-weight: 600;
+    padding: 0.55rem 1.2rem;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+    transition: all 0.18s ease;
 }
 
-table {
-    width: auto !important;
-    margin: 0 auto;
-    border-collapse: collapse;
-    table-layout: auto;
+div.stButton > button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.40);
+    background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 100%);
 }
 
-table th,
-table td {
-    padding: 8px 12px;
-    text-align: left;
-    vertical-align: middle;
+div.stButton > button:active {
+    transform: translateY(0);
 }
 
-table th {
-    background: #f8fafc;
-    font-weight: 600;
+/* ---------- INPUTS ---------- */
+.stTextInput > div > div > input,
+.stTextArea textarea,
+.stSelectbox > div > div {
+    border-radius: 10px !important;
+    border: 1px solid var(--line) !important;
 }
 
-table td:last-child {
-    text-align: right;
+.stTextInput > div > div > input:focus,
+.stTextArea textarea:focus {
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
 }
 
+/* ---------- SIDEBAR ---------- */
+section[data-testid="stSidebar"] {
+    background: var(--surface-alt);
+    border-right: 1px solid var(--line);
+}
+
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] .stSubheader {
+    color: var(--ink);
+}
+
+/* ---------- DATASET SUMMARY CARD ---------- */
 .dataset-summary-card {
-    background: #ffffff;
-    color: #000000;
-    padding: 18px 20px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
+    background: var(--surface);
+    color: var(--ink);
+    padding: 22px 24px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
     margin-top: 12px;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
 }
 
 .dataset-summary-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 12px;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .dataset-summary-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: #000000;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
 .dataset-summary-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--brand);
 }
 
-.dataset-summary-fields {
-    display: block;
-}
+.dataset-summary-fields { display: block; }
 
 .dataset-summary-list {
-    margin: 6px 0 0 18px;
+    list-style: none;
+    margin: 10px 0 0 0;
     padding: 0;
-    list-style-position: inside;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .dataset-summary-list li {
-    margin-bottom: 6px;
+    margin: 0;
 }
 
 .dataset-summary-field {
-    color: #047857;
-    font-weight: 700;
+    display: inline-block;
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--brand-dark);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    border: 1px solid rgba(79, 70, 229, 0.18);
 }
+
+/* ---------- SUMMARY / RESULT TABLES ---------- */
+.summary-table {
+    width: 100%;
+    margin: 12px 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--line);
+}
+
+.summary-table th {
+    background: var(--ink);
+    color: #ffffff;
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.summary-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 14px;
+}
+
+.summary-table tbody tr:last-child td { border-bottom: none; }
+.summary-table tbody tr:nth-child(even) { background: var(--surface-alt); }
+.summary-table tbody tr:hover { background: rgba(79, 70, 229, 0.05); }
+
+/* ---------- CODE BLOCKS ---------- */
+.stCodeBlock, pre {
+    border-radius: 12px !important;
+    border: 1px solid var(--line);
+}
+
+/* ---------- ALERTS ---------- */
+div[data-testid="stAlert"] {
+    border-radius: 12px !important;
+    border: none !important;
+}
+
+/* ---------- EXPANDER ---------- */
+.streamlit-expanderHeader, [data-testid="stExpander"] details summary {
+    border-radius: 10px !important;
+    font-weight: 600;
+}
+
+/* ---------- SCROLLBAR ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--surface-alt); }
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+    border: 2px solid var(--surface-alt);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--brand-light); }
 
 </style>
 """, unsafe_allow_html=True)
@@ -177,25 +256,20 @@ table td:last-child {
 # --------------------------------------------------
 # SESSION STATE
 # --------------------------------------------------
-
 if "dataset_loaded" not in st.session_state:
     st.session_state.dataset_loaded = False
-
 if "schema" not in st.session_state:
     st.session_state.schema = ""
-
 if "question" not in st.session_state:
     st.session_state.question = ""
 
 # --------------------------------------------------
 # HEADER
 # --------------------------------------------------
-
 st.markdown(
-    '<div class="main-title"> NL → SQL Analytics Agent</div>',
+    '<div class="main-title">NL → SQL Analytics Agent</div>',
     unsafe_allow_html=True
 )
-
 st.markdown(
     '<div class="sub-title">Upload CSV, Excel, or a SQLite database file and ask questions in plain English</div>',
     unsafe_allow_html=True
@@ -204,8 +278,6 @@ st.markdown(
 # --------------------------------------------------
 # SIDEBAR
 # --------------------------------------------------
-
-# Sidebar welcome and system status
 st.sidebar.markdown("### 👋 Welcome\n\nUpload your dataset and ask questions in plain English.")
 
 st.sidebar.subheader("🤖 LLM Provider")
@@ -220,25 +292,22 @@ api_key = None
 if provider_choice == "External (Groq API)":
     from dotenv import load_dotenv
     load_dotenv()
-    
-    
     api_key = os.environ.get("GROQ_API_KEY")
     if api_key:
-        st.sidebar.success(" Groq Connected")
+        st.sidebar.success("Groq Connected")
     else:
         st.sidebar.error("⚠️ Groq API Key Missing! Please add GROQ_API_KEY to your .env file.")
 else:
     st.sidebar.subheader("⚙️ System Status")
     ollama_running, has_model, models = check_ollama_status()
     if ollama_running and has_model:
-        st.sidebar.success(" Ollama Connected")
+        st.sidebar.success("Ollama Connected")
     else:
         st.sidebar.error("Ollama Not Available")
 
 # --------------------------------------------------
 # FILE UPLOAD
 # --------------------------------------------------
-
 st.sidebar.subheader("📂 Upload Dataset")
 
 uploaded_file = st.sidebar.file_uploader(
@@ -247,9 +316,7 @@ uploaded_file = st.sidebar.file_uploader(
 )
 
 if uploaded_file:
-
     try:
-
         filename = uploaded_file.name.lower()
 
         if filename.endswith(".csv"):
@@ -262,47 +329,35 @@ if uploaded_file:
 
         elif filename.endswith((".db", ".sqlite", ".sqlite3")):
             os.makedirs("database", exist_ok=True)
-
             with open("database/uploaded_data.db", "wb") as db_file:
                 db_file.write(uploaded_file.getbuffer())
-
             st.sidebar.success("SQLite database uploaded")
             st.session_state.dataset_loaded = True
 
         else:
             raise ValueError("Unsupported file type. Please upload CSV, Excel, or SQLite database files.")
 
-        if "dataset_loaded" in st.session_state and st.session_state.dataset_loaded:
-            schema = get_schema()
-            st.session_state.schema = schema
+        if filename.endswith((".csv", ".xlsx", ".xls")):
+            st.session_state.dataset_loaded = True
 
-        # Dataset preview removed per user request
+        if st.session_state.dataset_loaded:
+            st.session_state.schema = get_schema()
 
     except Exception as e:
-
-        st.error(
-            f"Dataset Upload Failed: {str(e)}"
-        )
-
+        st.error(f"Dataset Upload Failed: {str(e)}")
         st.stop()
 
 # --------------------------------------------------
 # STOP IF NO DATASET
 # --------------------------------------------------
-
 if not st.session_state.dataset_loaded:
-
-    st.info(
-        "Please upload a CSV or Excel dataset to begin."
-    )
-
+    st.info("Please upload a CSV or Excel dataset to begin.")
     st.stop()
-# --------------------------------------------------
-# QUESTION INPUT
-# --------------------------------------------------
 
+# --------------------------------------------------
+# DATASET SUMMARY
+# --------------------------------------------------
 st.subheader("Dataset Summary")
-
 st.markdown(
     "This dataset has been uploaded successfully. Use the fields below when asking questions in plain English."
 )
@@ -318,8 +373,6 @@ summary_html = f"""
         <span class="dataset-summary-value">{row_count}</span>
         <span class="dataset-summary-label">Columns:</span>
         <span class="dataset-summary-value">{column_count}</span>
-    </div>
-    <div class="dataset-summary-row">
         <span class="dataset-summary-label">Table:</span>
         <span class="dataset-summary-value">uploaded_data</span>
     </div>
@@ -331,9 +384,11 @@ summary_html = f"""
     </div>
 </div>
 """
-
 st.markdown(summary_html, unsafe_allow_html=True)
 
+# --------------------------------------------------
+# QUESTION INPUT
+# --------------------------------------------------
 st.subheader("Ask Your Question")
 
 question = st.text_input(
@@ -342,46 +397,28 @@ question = st.text_input(
     placeholder="Example: Average salary by department"
 )
 
-generate_button = st.button(
-    "Generate SQL & Analyze",
-    use_container_width=True
-)
+generate_button = st.button("Generate SQL & Analyze", use_container_width=True)
 
 # --------------------------------------------------
 # RUN ANALYSIS
 # --------------------------------------------------
-
 if generate_button:
-
     if not question.strip():
-
-        st.warning(
-            "Please enter a question."
-        )
-
+        st.warning("Please enter a question.")
         st.stop()
 
     schema = st.session_state.schema
-    
-    # ------------------------------------------
-    # CHECK PREREQUISITES
-    # ------------------------------------------
-    
     provider_val = "groq" if provider_choice == "External (Groq API)" else "ollama"
-    
+
     if provider_val == "groq" and not api_key:
         st.error("Please provide a Groq API Key in the sidebar.")
         st.stop()
-        
+
     if provider_val == "ollama":
         running, has_mod, _ = check_ollama_status()
         if not running or not has_mod:
             st.error("Ollama is not running or the required model is missing.")
             st.stop()
-
-    # ------------------------------------------
-    # AGENT LOOP EXECUTION
-    # ------------------------------------------
 
     with st.spinner(f"Agent Loop: Generating and verifying SQL via {provider_choice}..."):
         try:
@@ -400,19 +437,14 @@ if generate_button:
         except Exception as e:
             st.error(f"Agent Loop Failed: {str(e)}")
             st.stop()
-            
+
     st.subheader("Executed SQL Query")
     st.code(st.session_state.executed_sql, language="sql", line_numbers=True)
 
-
 # --------------------------------------------------
-# EXECUTE QUERY
+# EXECUTE QUERY / MANUAL EDITOR
 # --------------------------------------------------
-
-
-# Manual SQL editor (available after any query execution)
 if "executed_sql" in st.session_state:
-    # Manual SQL editor (available at any time)
     with st.expander("🛠️ Manual SQL Editor"):
         manual_sql = st.text_area(
             "Edit or enter SQL manually:",
@@ -428,64 +460,34 @@ if "executed_sql" in st.session_state:
             except Exception as e:
                 st.error(f"Manual execution failed: {str(e)}")
 
-
-    execution_status = "success"
     sql_query = st.session_state.executed_sql
     results_df = st.session_state.results_df
 
-    # Display heading with status on the same line
-    if execution_status == "success":
-        st.markdown("<h3>Query Execution   <span style='color: green; font-weight: bold;'>✅ Success</span></h3>", unsafe_allow_html=True)
-    else:
-        st.markdown("<h3>Query Execution</h3>", unsafe_allow_html=True)
+    st.markdown(
+        "<h3>Query Execution &nbsp; <span style='color:#16a34a; font-weight:700;'>✅ Success</span></h3>",
+        unsafe_allow_html=True
+    )
 
-    # --------------------------------------------------
-    # EXPLANATION
-    # --------------------------------------------------
-
+    # ---------- EXPLANATION ----------
     st.subheader("Business Explanation")
-
     try:
-
         provider_val = "groq" if provider_choice == "External (Groq API)" else "ollama"
-        explanation = explain_sql(
-            sql_query,
-            provider=provider_val,
-            api_key=api_key
-        )
-
+        explanation = explain_sql(sql_query, provider=provider_val, api_key=api_key)
         st.markdown(explanation)
-
     except Exception:
-
-        st.markdown(
-            "Explanation could not be generated."
-        )
-
+        st.markdown("Explanation could not be generated.")
         explanation = ""
 
-    # Confidence score display removed per user request
-
-    # --------------------------------------------------
-    # RESULT METRICS + QUERY RESULTS (side by side)
-    # --------------------------------------------------
-
+    # ---------- RESULT METRICS + RESULTS ----------
     left_col, right_col = st.columns([1, 1], gap="small")
 
     with left_col:
         st.subheader("Result Summary")
-
-        numeric_count = len(
-            results_df.select_dtypes(include="number").columns
-        )
-
+        numeric_count = len(results_df.select_dtypes(include="number").columns)
         summary_html = f"""
         <table class='summary-table'>
             <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Value</th>
-                </tr>
+                <tr><th>Metric</th><th>Value</th></tr>
             </thead>
             <tbody>
                 <tr><td>Rows Returned</td><td>{len(results_df)}</td></tr>
@@ -494,43 +496,31 @@ if "executed_sql" in st.session_state:
             </tbody>
         </table>
         """
-
         st.markdown(summary_html, unsafe_allow_html=True)
 
     with right_col:
         st.subheader("Query Results")
-
         if results_df.empty:
-
-            st.warning(
-                "No records returned."
-            )
-
+            st.warning("No records returned.")
         else:
-
-            # Convert dataframe to HTML table with same styling as summary
             html_table = results_df.to_html(
                 classes='summary-table',
                 border=0,
                 index=False,
                 justify='left'
             )
-            
             st.markdown(html_table, unsafe_allow_html=True)
-        # --------------------------------------------------
+
+# --------------------------------------------------
 # CHARTS
 # --------------------------------------------------
-
 if "results_df" in st.session_state:
-
     results_df = st.session_state.results_df
 
     if not results_df.empty:
-
-        # Visualization header and Chart type selector
         col1, col2, col3 = st.columns([2.5, 1.5, 6], gap="small", vertical_alignment="center")
         with col1:
-            st.subheader(" Visualization")
+            st.subheader("Visualization")
         with col2:
             chart_type = st.selectbox(
                 "Chart Type",
@@ -541,25 +531,20 @@ if "results_df" in st.session_state:
             )
 
         try:
-
-            # Import chart creation function based on selection
             if chart_type == "Auto":
-                fig = create_chart(
-                    results_df,
-                    st.session_state.question
-                )
+                fig = create_chart(results_df, st.session_state.question)
             else:
                 import plotly.express as px
                 numeric_cols = results_df.select_dtypes(include="number").columns.tolist()
                 categorical_cols = results_df.select_dtypes(include="object").columns.tolist()
-                
+
                 if not numeric_cols:
                     st.warning("No numeric columns available for charting")
                     fig = None
                 else:
                     x_col = categorical_cols[0] if categorical_cols else numeric_cols[0]
                     y_col = numeric_cols[0]
-                    
+
                     if chart_type == "Bar":
                         fig = px.bar(results_df, x=x_col, y=y_col, color=x_col, title=st.session_state.question)
                     elif chart_type == "Line":
@@ -574,22 +559,16 @@ if "results_df" in st.session_state:
                         fig = create_chart(results_df, st.session_state.question)
 
             if fig:
-
-                st.plotly_chart(
-                    fig,
-                    use_container_width=True
+                fig.update_layout(
+                    font=dict(family="Inter, sans-serif"),
+                    title_font=dict(size=18),
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    margin=dict(t=60, l=20, r=20, b=20)
                 )
-
+                st.plotly_chart(fig, use_container_width=True)
             else:
-
-                st.info(
-                    "No suitable chart could be generated."
-                )
+                st.info("No suitable chart could be generated.")
 
         except Exception as e:
-
-            st.warning(
-                f"Chart generation failed: {str(e)}"
-            )
-
-# Insights, download, query-details and footer removed per user request
+            st.warning(f"Chart generation failed: {str(e)}")

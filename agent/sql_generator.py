@@ -111,6 +111,7 @@ CRITICAL RULES FOR JOIN QUERIES:
 4. NEVER reference a column from the wrong table. Check schema carefully.
 5. Verify JOIN conditions use columns that actually exist in those tables.
 6. All columns in GROUP BY must match table ownership in schema.
+7. If a column name contains spaces or is a reserved keyword, ALWAYS quote it using double quotes (e.g., "column name").
 
 GENERAL RULES:
 
@@ -225,7 +226,7 @@ def agent_loop_generate_and_run(question, schema, execute_func, validate_func, p
     """
     Agent loop that generates SQL, validates, executes, and retries on failure.
     """
-    prompt = f"Generate a valid SQLite SELECT query for this schema:\n{schema}\n\nQuestion: {question}\nReturn ONLY the SQL code."
+    prompt = f"Generate a valid SQLite SELECT query for this schema:\n{schema}\n\nQuestion: {question}\nIf a column name contains spaces, quote it using double quotes. Return ONLY the SQL code."
     
     messages = [
         {"role": "system", "content": "You are a helpful data analyst AI that generates SQLite queries."},
