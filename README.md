@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # NL → SQL Analytics Agent
 
 A Streamlit analytics assistant that converts your plain-English questions into **safe, read-only SQLite (SELECT) queries** over your uploaded dataset.
@@ -17,7 +17,6 @@ Instead of writing SQL manually, upload a dataset and ask questions in plain Eng
 4. Executes the query on your uploaded data
 5. Shows the results table + charts + explanation
 
-=======
 # NL-To-SQL Analytics Agent
 
 ## DE-01: Schema-Grounded Text-to-SQL Agent
