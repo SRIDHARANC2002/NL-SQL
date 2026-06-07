@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # NL → SQL Analytics Agent
 
 A Streamlit analytics assistant that converts your plain-English questions into **safe, read-only SQLite (SELECT) queries** over your uploaded dataset.
