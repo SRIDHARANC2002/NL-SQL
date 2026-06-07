@@ -1,192 +1,76 @@
 import requests
 import re
 
+# Configuration
 OLLAMA_URL = "http://localhost:11434"
 MODEL_NAME = "llama3.2"
-
-<<<<<<< HEAD
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL_NAME = "llama-3.3-70b-versatile"
 
-=======
->>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 def check_ollama_status():
-    """
-    Check whether Ollama is running and model exists.
+    """Check whether Ollama is running and the required model exists.
+
     Returns:
-        (is_running, has_model, models)
+        tuple: (is_running: bool, has_model: bool, models: list)
     """
-
     try:
-
-        response = requests.get(
-            f"{OLLAMA_URL}/api/tags",
-            timeout=3
-        )
-
+        response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=3)
         if response.status_code != 200:
             return False, False, []
-
         models_data = response.json().get("models", [])
-
-        models = [
-            model.get("name", "")
-            for model in models_data
-        ]
-
-        has_model = any(
-            MODEL_NAME in model.lower()
-            for model in models
-        )
-
+        models = [model.get("name", "") for model in models_data]
+        has_model = any(MODEL_NAME.lower() in model.lower() for model in models)
         return True, has_model, models
-
     except Exception:
         return False, False, []
 
 
-def clean_sql(response_text):
+def clean_sql(response_text: str) -> str:
+    """Extract raw SQL from a model response, stripping markdown and comments.
     """
-    Extract SQL from model response.
-    Removes markdown and extra text.
-    """
-
     if not response_text:
         return ""
-
-    code_match = re.search(
-        r"```(?:sql)?(.*?)```",
-        response_text,
-        re.DOTALL | re.IGNORECASE
-    )
-
-    if code_match:
-        sql = code_match.group(1)
-    else:
-        sql = response_text
-
-    sql = sql.strip()
-
-    sql = sql.replace("```sql", "")
-    sql = sql.replace("```", "")
-
+    # Grab code block if present
+    code_match = re.search(r"```(?:sql)?(.*?)```", response_text, re.DOTALL | re.IGNORECASE)
+    sql = code_match.group(1) if code_match else response_text
+    # Remove any stray markdown fences
+    sql = sql.replace("```sql", "").replace("```", "")
+    # Strip leading/trailing whitespace and collapse lines
     lines = []
-
     for line in sql.splitlines():
-
         line = line.strip()
-
-        if not line:
+        if not line or line.startswith("--"):
             continue
-
-        if line.startswith("--"):
-            continue
-
         lines.append(line)
-
-    sql = " ".join(lines)
-
-    sql = re.sub(r"\s+", " ", sql)
-
-    return sql.strip()
+    cleaned = " ".join(lines)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
 
 
-<<<<<<< HEAD
-def generate_sql(question, schema, provider="ollama", api_key=None):
+def generate_sql(question: str, schema: str, provider: str = "ollama", api_key: str | None = None) -> str:
+    """Generate SQL from a natural‑language question.
+
+    Args:
+        question: User's question.
+        schema: Database schema description.
+        provider: "ollama" or "groq".
+        api_key: Required when provider is "groq".
     """
-    Convert natural language question to SQL using the chosen provider.
-=======
-def generate_sql(question, schema):
-    """
-    Convert natural language question to SQL.
->>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
-    """
-
     prompt = f"""
 You are an expert SQLite SQL generator.
 
-Your task is to convert the user's question into a valid SQLite query.
-
 DATABASE SCHEMA:
-
 {schema}
 
-CRITICAL RULES FOR JOIN QUERIES:
+Question: {question}
 
-1. ALWAYS verify which table each column belongs to BEFORE using it.
-2. When using multiple tables, use table aliases (T1, T2, T3, etc).
-3. In SELECT and GROUP BY, prefix each column with its table alias (e.g., T1.column_name, T3.column_name).
-4. NEVER reference a column from the wrong table. Check schema carefully.
-5. Verify JOIN conditions use columns that actually exist in those tables.
-6. All columns in GROUP BY must match table ownership in schema.
-<<<<<<< HEAD
-7. If a column name contains spaces or is a reserved keyword, ALWAYS quote it using double quotes (e.g., "column name").
-=======
->>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
-
-GENERAL RULES:
-
-1. Use ONLY columns present in schema.
-2. Use appropriate tables from the schema (can be single or multiple tables with JOINs).
-3. Return ONLY SQL.
-4. Do not explain anything.
-5. Do not use markdown.
-6. Use SQLite syntax.
-7. If aggregation is needed, use GROUP BY.
-8. Use LIMIT for Top N queries.
-9. Never generate INSERT, UPDATE, DELETE, DROP, ALTER.
-10. Only generate SELECT queries.
-
-Examples:
-
-Question:
-Show top 5 customers by revenue from completed orders
-
-SQL:
-SELECT 
-    T3.customer_id,
-    SUM(T1.unit_price * T2.quantity) AS total_revenue
-FROM products AS T1
-JOIN order_items AS T2 ON T1.product_id = T2.product_id
-JOIN orders AS T3 ON T2.order_id = T3.order_id
-WHERE T3.status = 'completed'
-GROUP BY T3.customer_id
-ORDER BY total_revenue DESC
-LIMIT 5;
-
-Question:
-Show top 5 customers by revenue
-
-SQL:
-SELECT customer_id,
-SUM(revenue) AS total_revenue
-FROM uploaded_data
-GROUP BY customer_id
-ORDER BY total_revenue DESC
-LIMIT 5;
-
-Question:
-Average salary by department
-
-SQL:
-SELECT department,
-AVG(salary) AS avg_salary
-FROM uploaded_data
-GROUP BY department;
-
-User Question:
-{question}
-
-SQL:
+Return ONLY the SQL query without any explanations or markdown.
 """
-
-<<<<<<< HEAD
     if provider == "groq":
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
+        if not api_key:
+            raise ValueError("Groq API key is required for Groq provider")
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
         payload = {
             "model": GROQ_MODEL_NAME,
             "messages": [
@@ -196,168 +80,40 @@ SQL:
             "temperature": 0.1,
             "top_p": 0.9
         }
-        try:
-            response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
-            if response.status_code != 200:
-                raise Exception(f"Groq API Error: {response.text}")
-            raw_response = response.json()["choices"][0]["message"]["content"]
-            sql = clean_sql(raw_response)
-            return sql
-        except Exception as e:
-            raise Exception(f"SQL Generation Failed (Groq): {str(e)}")
-            
-    else:
-        # Default to Ollama
+        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
+        if response.status_code != 200:
+            raise Exception(f"Groq API Error: {response.text}")
+        raw = response.json()["choices"][0]["message"]["content"]
+        return clean_sql(raw)
+    else:  # Ollama
         payload = {
             "model": MODEL_NAME,
             "prompt": prompt,
             "stream": False,
-            "options": {
-                "temperature": 0.1,
-                "top_p": 0.9
-            }
+            "options": {"temperature": 0.1, "top_p": 0.9}
         }
-        try:
-            response = requests.post(
-                f"{OLLAMA_URL}/api/generate",
-                json=payload,
-                timeout=60
-            )
-            if response.status_code != 200:
-                raise Exception(
-                    f"Ollama returned {response.status_code}"
-                )
-            raw_response = response.json().get("response", "")
-            sql = clean_sql(raw_response)
-            return sql
-        except Exception as e:
-            raise Exception(
-                f"SQL Generation Failed (Ollama): {str(e)}"
-            )
-
-def agent_loop_generate_and_run(question, schema, execute_func, validate_func, provider="ollama", api_key=None, max_retries=3):
-    """
-    Agent loop that generates SQL, validates, executes, and retries on failure.
-    """
-    prompt = f"Generate a valid SQLite SELECT query for this schema:\n{schema}\n\nQuestion: {question}\nIf a column name contains spaces, quote it using double quotes. Return ONLY the SQL code."
-    
-    messages = [
-        {"role": "system", "content": "You are a helpful data analyst AI that generates SQLite queries."},
-        {"role": "user", "content": prompt}
-    ]
-    
-    last_error = None
-    last_sql = ""
-
-    for attempt in range(max_retries):
-        try:
-            if provider == "groq":
-                headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-                payload = {"model": GROQ_MODEL_NAME, "messages": messages, "temperature": 0.1}
-                response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
-                if response.status_code != 200:
-                    raise Exception(f"Groq API Error: {response.text}")
-                raw_response = response.json()["choices"][0]["message"]["content"]
-            else:
-                # Format messages array to plain string for Ollama prompt
-                ollama_prompt = "\n".join([m["content"] for m in messages])
-                payload = {"model": MODEL_NAME, "prompt": ollama_prompt, "stream": False, "options": {"temperature": 0.1}}
-                response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
-                if response.status_code != 200:
-                    raise Exception(f"Ollama returned {response.status_code}")
-                raw_response = response.json().get("response", "")
-
-            sql = clean_sql(raw_response)
-            last_sql = sql
-            
-            # 1. Validate SQL
-            is_valid = validate_func(sql)
-            if not is_valid:
-                error_msg = f"The generated SQL '{sql}' is invalid. It might contain restricted keywords. Please generate a simple SELECT query."
-                messages.append({"role": "assistant", "content": raw_response})
-                messages.append({"role": "user", "content": error_msg})
-                last_error = error_msg
-                continue
-                
-            # 2. Execute SQL
-            results_df = execute_func(sql)
-            return sql, results_df
-            
-        except Exception as e:
-            error_msg = f"Execution failed with error: {str(e)}. Please correct the SQL query and return ONLY the corrected SQL code."
-            # Avoid referencing undefined variable if first request fails
-            messages.append({"role": "assistant", "content": raw_response if 'raw_response' in locals() else last_sql})
-            messages.append({"role": "user", "content": error_msg})
-            last_error = str(e)
-            
-    raise Exception(f"Agent Loop Failed after {max_retries} retries. Last Error: {last_error}\nLast SQL attempted: {last_sql}")
-=======
-    payload = {
-        "model": MODEL_NAME,
-        "prompt": prompt,
-        "stream": False,
-        "options": {
-            "temperature": 0.1,
-            "top_p": 0.9
-        }
-    }
-
-    try:
-
-        response = requests.post(
-            f"{OLLAMA_URL}/api/generate",
-            json=payload,
-            timeout=60
-        )
-
+        response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
         if response.status_code != 200:
-            raise Exception(
-                f"Ollama returned {response.status_code}"
-            )
+            raise Exception(f"Ollama returned {response.status_code}")
+        raw = response.json().get("response", "")
+        return clean_sql(raw)
 
-        raw_response = response.json().get(
-            "response",
-            ""
-        )
-
-        sql = clean_sql(raw_response)
-
-        return sql
-
-    except Exception as e:
-
-        raise Exception(
-            f"SQL Generation Failed: {str(e)}"
-        )
-
->>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
 
 if __name__ == "__main__":
-
-    schema = """
+    sample_schema = """
 Table: uploaded_data
-
 Columns:
 - customer_id (TEXT)
 - revenue (REAL)
 - gender (TEXT)
 - age (INTEGER)
 """
-
-    question = "Top 5 customers by revenue"
-
-    print("Checking Ollama...")
-
+    sample_question = "Top 5 customers by revenue"
+    print("Checking Ollama status...")
     status = check_ollama_status()
-
     print(status)
-
-    if status[0]:
-
-        sql = generate_sql(
-            question,
-            schema
-        )
-
-        print("\nGenerated SQL:\n")
-        print(sql)
+    if status[0] and status[1]:
+        sql = generate_sql(sample_question, sample_schema)
+        print("\nGenerated SQL:\n", sql)
+    else:
+        print("Ollama not ready – cannot generate SQL.")
