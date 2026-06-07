@@ -5,7 +5,7 @@ A Streamlit analytics assistant that converts your plain-English questions into 
 
 It validates the generated SQL, executes it on SQLite, explains the result, and visualizes it with Plotly.
 
-# Team Members
+# Team 26 - Team Members
 
 | Name       | Resume |
 |------------|--------|
