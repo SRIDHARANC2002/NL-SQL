@@ -1,6 +1,6 @@
 import requests
 import re
-from agent.sql_generator import clean_sql
+from agent.sql_generator import clean_sql, quote_columns_with_spaces
 
 OLLAMA_URL = "http://localhost:11434"
 MODEL_NAME = "llama3.2"
@@ -23,13 +23,37 @@ def agent_loop_generate_and_run(
     if not schema or not str(schema).strip():
         raise Exception("Schema is empty. Upload a CSV/Excel/SQLite file first.")
 
-    prompt = (
-        f"Generate a valid SQLite SELECT query for this schema:\n{schema}\n\n"
-        f"Question: {question}\n"
-        "Rules: Use ONLY columns and tables that exist in the provided schema. "
-        "If any column name contains spaces, wrap it in double quotes. "
-        "Return ONLY the SQL code."
-    )
+    prompt = f"""
+You are a strict SQLite SQL generator.
+
+DATABASE SCHEMA:
+{schema}
+
+QUESTION:
+{question}
+
+RULES:
+
+1. Use ONLY tables listed in DATABASE SCHEMA.
+2. Use ONLY columns listed in DATABASE SCHEMA.
+3. NEVER invent tables.
+4. NEVER invent columns.
+5. NEVER use tables named:
+   customers
+   orders
+   products
+   order_items
+   sales
+
+   unless they explicitly appear in the schema.
+
+6. If only one table exists,
+   DO NOT generate JOIN statements.
+
+7. Return ONLY SQL.
+
+SQL:
+"""
 
     messages = [
         {
@@ -108,6 +132,7 @@ def agent_loop_generate_and_run(
 
             # 2. Execute SQL
             print("⚙️ [Agent Loop] Validation Passed. Executing SQL...")
+            sql = quote_columns_with_spaces(sql, schema)
             results_df = execute_func(sql)
             print(
                 f"✅ [Agent Loop] SQL executed successfully on Attempt {current_attempt}!"
