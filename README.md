@@ -6,6 +6,13 @@ A Streamlit analytics assistant that converts your plain-English questions into 
 It validates the generated SQL, executes it on SQLite, explains the result, and visualizes it with Plotly.
 
 ---
+# Team Members
+
+| Name          |   RESUME |                                                
+| ------------- | 
+| Sridharan     | [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing)
+| Sriram        | 
+| Srivignesh    |          |
 
 ## What the app does
 
@@ -446,11 +453,11 @@ The application enforces a strict read-only execution model.
 
 # Team Members
 
-| Name          |                                                     
+| Name          |   RESUME |                                                
 | ------------- | 
-| Sridharan     | 
-| Team Member 2 | 
-| Team Member 3 |
+| Sridharan     | [Sridharan Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing)
+| Sriram        | 
+| Srivignesh    |          |
 
 ---
 
