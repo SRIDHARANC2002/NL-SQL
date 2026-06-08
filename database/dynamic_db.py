@@ -149,6 +149,99 @@ def database_exists():
     return os.path.exists(DB_PATH)
 
 
+def get_all_tables_metadata():
+    """
+    Returns a list of dictionaries containing metadata for all tables.
+    Each dict has: table_name, row_count, column_count
+    """
+
+    if not os.path.exists(DB_PATH):
+        return []
+
+    tables = get_table_names()
+    if not tables:
+        return []
+
+    conn = sqlite3.connect(DB_PATH)
+    metadata_list = []
+
+    try:
+        cursor = conn.cursor()
+
+        for table in tables:
+            # Get row count
+            cursor.execute(f"SELECT COUNT(*) FROM {table}")
+            row_count = cursor.fetchone()[0]
+
+            # Get column count
+            cursor.execute(f"PRAGMA table_info({table})")
+            columns = cursor.fetchall()
+            column_count = len(columns)
+
+            metadata_list.append({
+                "table_name": table,
+                "row_count": row_count,
+                "column_count": column_count
+            })
+
+        return metadata_list
+
+    finally:
+        conn.close()
+
+
+def get_table_data(table_name: str, limit: int = None) -> pd.DataFrame:
+    """
+    Fetches data from a specific table with optional row limit.
+    If limit is None, fetches all rows.
+    """
+
+    if not os.path.exists(DB_PATH):
+        return pd.DataFrame()
+
+    tables = get_table_names()
+    if table_name not in tables:
+        return pd.DataFrame()
+
+    conn = sqlite3.connect(DB_PATH)
+
+    try:
+        if limit is None:
+            query = f"SELECT * FROM {table_name}"
+        else:
+            query = f"SELECT * FROM {table_name} LIMIT {limit}"
+        df = pd.read_sql_query(query, conn)
+        return df
+
+    finally:
+        conn.close()
+
+
+def get_table_schema(table_name: str) -> list:
+    """
+    Returns column schema for a specific table.
+    Returns list of tuples: [(column_name, column_type), ...]
+    """
+
+    if not os.path.exists(DB_PATH):
+        return []
+
+    tables = get_table_names()
+    if table_name not in tables:
+        return []
+
+    conn = sqlite3.connect(DB_PATH)
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"PRAGMA table_info({table_name})")
+        columns = cursor.fetchall()
+        return [(col[1], col[2]) for col in columns]
+
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
 
     sample_df = pd.DataFrame(

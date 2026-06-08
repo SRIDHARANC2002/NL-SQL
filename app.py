@@ -1,19 +1,28 @@
 import streamlit as st
 import pandas as pd
 import os
+import io
+from datetime import datetime
 
 from database.dynamic_db import (
     create_database_from_dataframe,
     get_schema,
     get_row_count,
-    get_column_names
+    get_column_names,
+    get_all_tables_metadata,
+    get_table_data,
+    get_table_schema
 )
 from agent.sql_generator import (
     generate_sql,
     check_ollama_status
 )
 from agent.agent_loop import agent_loop_generate_and_run
-from agent.validator import validate_sql
+from agent.validator import (
+    validate_sql,
+    validate_natural_language_intent,
+    security_error_message
+)
 from agent.sql_executor import execute_sql
 from agent.chart_generator import create_chart
 from agent.explanation_generator import explain_sql
@@ -41,14 +50,19 @@ html, body, [class*="css"] {
 }
 
 :root {
-    --brand: #4f46e5;
-    --brand-dark: #4338ca;
-    --brand-light: #6366f1;
-    --ink: #0f172a;
-    --muted: #64748b;
-    --line: #e2e8f0;
-    --surface: #ffffff;
-    --surface-alt: #f8fafc;
+    --brand: #8b5cf6;
+    --brand-dark: #7c3aed;
+    --brand-light: #a78bfa;
+    --ink: #ffffff;
+    --muted: #d1d5db;
+    --line: #374151;
+    --surface: #020617;
+    --surface-alt: #111827;
+}
+
+html, body, .main .block-container, section[data-testid="stSidebar"] {
+    background: #000000 !important;
+    color: #ffffff !important;
 }
 
 .main .block-container {
@@ -120,24 +134,40 @@ div.stButton > button:active {
 
 /* ---------- SIDEBAR ---------- */
 section[data-testid="stSidebar"] {
-    background: var(--surface-alt);
-    border-right: 1px solid var(--line);
+    background: #020617;
+    border-right: 1px solid #4338ca;
 }
 
 section[data-testid="stSidebar"] h3,
-section[data-testid="stSidebar"] .stSubheader {
-    color: var(--ink);
+section[data-testid="stSidebar"] .stSubheader,
+section[data-testid="stSidebar"] .css-1v3fvcr,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] .stMarkdown {
+    color: #ffffff;
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #ffffff;
+    border: none;
+}
+
+section[data-testid="stSidebar"] .stFileUploader {
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 12px;
 }
 
 /* ---------- DATASET SUMMARY CARD ---------- */
 .dataset-summary-card {
-    background: var(--surface);
-    color: var(--ink);
+    background: #111827;
+    color: #ffffff;
     padding: 22px 24px;
-    border: 1px solid var(--line);
+    border: 1px solid #374151;
     border-radius: 16px;
     margin-top: 12px;
-    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
 }
 
 .dataset-summary-row {
@@ -196,12 +226,13 @@ section[data-testid="stSidebar"] .stSubheader {
     border-spacing: 0;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
-    border: 1px solid var(--line);
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+    border: 1px solid #374151;
+    background: #0f172a;
 }
 
 .summary-table th {
-    background: var(--ink);
+    background: #111827;
     color: #ffffff;
     text-align: left;
     padding: 12px 14px;
@@ -213,8 +244,8 @@ section[data-testid="stSidebar"] .stSubheader {
 
 .summary-table td {
     padding: 11px 14px;
-    border-bottom: 1px solid var(--line);
-    color: var(--ink);
+    border-bottom: 1px solid #374151;
+    color: #e5e7eb;
     font-size: 14px;
 }
 
@@ -262,6 +293,8 @@ if "schema" not in st.session_state:
     st.session_state.schema = ""
 if "question" not in st.session_state:
     st.session_state.question = ""
+if "selected_table_preview" not in st.session_state:
+    st.session_state.selected_table_preview = None
 
 # --------------------------------------------------
 # HEADER
@@ -311,7 +344,7 @@ else:
 st.sidebar.subheader("📂 Upload Dataset")
 
 uploaded_file = st.sidebar.file_uploader(
-    "Choose CSV, Excel, or SQLite DB File",
+    "",
     type=["csv", "xlsx", "xls", "db", "sqlite", "sqlite3"]
 )
 
@@ -362,29 +395,79 @@ st.markdown(
     "This dataset has been uploaded successfully. Use the fields below when asking questions in plain English."
 )
 
-columns = get_column_names()
-row_count = get_row_count()
-column_count = len(columns)
+# Check if we have a table preview open
+if st.session_state.selected_table_preview:
+    # Display table schema and preview
+    col1, col2 = st.columns([1, 0.15], gap="large")
+    with col1:
+        st.markdown(f"**Table: {st.session_state.selected_table_preview}**")
+    with col2:
+        if st.button("Close", key="close_preview", use_container_width=True):
+            st.session_state.selected_table_preview = None
+            st.rerun()
 
-summary_html = f"""
-<div class="dataset-summary-card">
-    <div class="dataset-summary-row">
-        <span class="dataset-summary-label">Rows:</span>
-        <span class="dataset-summary-value">{row_count}</span>
-        <span class="dataset-summary-label">Columns:</span>
-        <span class="dataset-summary-value">{column_count}</span>
-        <span class="dataset-summary-label">Table:</span>
-        <span class="dataset-summary-value">uploaded_data</span>
-    </div>
-    <div class="dataset-summary-row dataset-summary-fields">
-        <span class="dataset-summary-label">Fields:</span>
-        <ul class="dataset-summary-list">
-            {''.join([f'<li><span class="dataset-summary-field">{col}</span></li>' for col in columns])}
-        </ul>
-    </div>
-</div>
-"""
-st.markdown(summary_html, unsafe_allow_html=True)
+    # Display schema information
+    table_schema = get_table_schema(st.session_state.selected_table_preview)
+    if table_schema:
+        with st.expander("📋 Column Schema", expanded=True):
+            schema_text = "\n".join([f"{col_name} ({col_type})" for col_name, col_type in table_schema])
+            st.code(schema_text, language="text")
+
+    # Display data preview
+    st.markdown("**Preview** (Scrollable)")
+    preview_data = get_table_data(st.session_state.selected_table_preview)
+    if preview_data.empty:
+        st.info("No data available in this table.")
+    else:
+        st.dataframe(preview_data, use_container_width=True, height=400)
+
+else:
+    # Display multi-table summary
+    tables_metadata = get_all_tables_metadata()
+
+    if tables_metadata:
+        # Create rows for each table
+        for idx, table_meta in enumerate(tables_metadata):
+            col1, col2, col3, col4, col5 = st.columns([2, 1.2, 1.2, 1, 1.2], gap="small")
+
+            with col1:
+                st.markdown(f"**Table:** `{table_meta['table_name']}`")
+            with col2:
+                st.markdown(f"<div class='dataset-summary-label'>Rows</div><div class='dataset-summary-value'>{table_meta['row_count']}</div>", unsafe_allow_html=True)
+            with col3:
+                st.markdown(f"<div class='dataset-summary-label'>Columns</div><div class='dataset-summary-value'>{table_meta['column_count']}</div>", unsafe_allow_html=True)
+            with col4:
+                st.write("")  # Spacer
+            with col5:
+                if st.button("View", key=f"view_btn_{idx}", use_container_width=True):
+                    st.session_state.selected_table_preview = table_meta['table_name']
+                    st.rerun()
+
+    else:
+        # Fallback for single table (CSV/Excel)
+        columns = get_column_names()
+        row_count = get_row_count()
+        column_count = len(columns)
+
+        summary_html = f"""
+        <div class="dataset-summary-card">
+            <div class="dataset-summary-row">
+                <span class="dataset-summary-label">Rows:</span>
+                <span class="dataset-summary-value">{row_count}</span>
+                <span class="dataset-summary-label">Columns:</span>
+                <span class="dataset-summary-value">{column_count}</span>
+                <span class="dataset-summary-label">Table:</span>
+                <span class="dataset-summary-value">uploaded_data</span>
+            </div>
+            <div class="dataset-summary-row dataset-summary-fields">
+                <span class="dataset-summary-label">Fields:</span>
+                <ul class="dataset-summary-list">
+                    {''.join([f'<li><span class="dataset-summary-field">{col}</span></li>' for col in columns])}
+                </ul>
+            </div>
+        </div>
+        """
+        st.markdown(summary_html, unsafe_allow_html=True)
 
 # --------------------------------------------------
 # QUESTION INPUT
@@ -405,6 +488,13 @@ generate_button = st.button("Generate SQL & Analyze", use_container_width=True)
 if generate_button:
     if not question.strip():
         st.warning("Please enter a question.")
+        st.stop()
+
+    # LAYER 1: Natural Language Validation
+    # Check for destructive intent BEFORE calling LLM
+    is_safe, nl_message = validate_natural_language_intent(question)
+    if not is_safe:
+        st.error(nl_message)
         st.stop()
 
     schema = st.session_state.schema
@@ -452,6 +542,11 @@ if "executed_sql" in st.session_state:
             height=200,
         )
         if st.button("Run Manual SQL"):
+            # LAYER 4: Execution Safety - Validate before executing manual SQL
+            if not validate_sql(manual_sql):
+                st.error(security_error_message())
+                st.stop()
+            
             try:
                 manual_results_df = execute_sql(manual_sql)
                 st.success("Manual SQL executed successfully.")
@@ -484,32 +579,148 @@ if "executed_sql" in st.session_state:
     with left_col:
         st.subheader("Result Summary")
         numeric_count = len(results_df.select_dtypes(include="number").columns)
-        summary_html = f"""
-        <table class='summary-table'>
-            <thead>
-                <tr><th>Metric</th><th>Value</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>Rows Returned</td><td>{len(results_df)}</td></tr>
-                <tr><td>Columns Returned</td><td>{len(results_df.columns)}</td></tr>
-                <tr><td>Numeric Fields</td><td>{numeric_count}</td></tr>
-            </tbody>
-        </table>
-        """
-        st.markdown(summary_html, unsafe_allow_html=True)
+        summary_df = pd.DataFrame(
+            {
+                "Metric": ["Rows Returned", "Columns Returned", "Numeric Fields"],
+                "Value": [len(results_df), len(results_df.columns), numeric_count],
+            }
+        )
+        st.dataframe(summary_df, use_container_width=True, height=140)
 
     with right_col:
         st.subheader("Query Results")
         if results_df.empty:
             st.warning("No records returned.")
         else:
-            html_table = results_df.to_html(
-                classes='summary-table',
-                border=0,
-                index=False,
-                justify='left'
-            )
-            st.markdown(html_table, unsafe_allow_html=True)
+            # Fixed-height scrollable display (approx. 5 visible rows)
+            visible_height = 260
+            st.dataframe(results_df, use_container_width=True, height=visible_height)
+
+            # Export helpers (use current results; no re-execution)
+            def _generate_excel_bytes(df: pd.DataFrame, question: str, sql: str, timestamp: str) -> bytes:
+                try:
+                    # existence check for openpyxl
+                    import openpyxl  # type: ignore
+                except Exception:
+                    raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
+
+                buffer = io.BytesIO()
+                with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+                    df.to_excel(writer, sheet_name="Results", index=False)
+
+                buffer.seek(0)
+                return buffer.read()
+
+            def _generate_pdf_bytes(df: pd.DataFrame, question: str, sql: str, timestamp: str, summary: dict) -> bytes:
+                try:
+                    from reportlab.lib.pagesizes import letter, landscape
+                    from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+                    from reportlab.lib.styles import getSampleStyleSheet
+                    from reportlab.lib import colors
+                except Exception:
+                    raise ImportError("reportlab is required for PDF export. Install with: pip install reportlab")
+
+                buf = io.BytesIO()
+                pagesize = letter
+                if len(df.columns) > 6:
+                    pagesize = landscape(letter)
+
+                doc = SimpleDocTemplate(buf, pagesize=pagesize, leftMargin=24, rightMargin=24, topMargin=24, bottomMargin=24)
+                styles = getSampleStyleSheet()
+                elems = []
+                elems.append(Paragraph("NL → SQL Analytics Report", styles["Title"]))
+                elems.append(Spacer(1, 12))
+                elems.append(Paragraph("<b>User Question</b>", styles["Heading2"]))
+                elems.append(Paragraph(question, styles["Normal"]))
+                elems.append(Spacer(1, 8))
+                elems.append(Paragraph("<b>Generated SQL Query</b>", styles["Heading2"]))
+                elems.append(Paragraph(sql, styles["Normal"]))
+                elems.append(Spacer(1, 8))
+                elems.append(Paragraph("<b>Execution Timestamp</b>", styles["Heading2"]))
+                elems.append(Paragraph(timestamp, styles["Normal"]))
+                elems.append(Spacer(1, 12))
+                elems.append(Paragraph("<b>Result Summary</b>", styles["Heading2"]))
+
+                summary_data = [["Metric", "Value"], ["Rows Returned", summary.get("rows")], ["Columns Returned", summary.get("columns")], ["Numeric Fields", summary.get("numeric")]]
+                tbl = Table(summary_data, hAlign="LEFT", colWidths=[150, 100])
+                tbl.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f2f2f2")),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ]))
+                elems.append(tbl)
+                elems.append(Spacer(1, 12))
+                elems.append(Paragraph("<b>Query Results</b>", styles["Heading2"]))
+
+                data = [list(df.columns)] + df.values.tolist()
+                for r_idx, row in enumerate(data):
+                    for c_idx, cell in enumerate(row):
+                        if cell is None:
+                            data[r_idx][c_idx] = ""
+                        elif not isinstance(cell, (str, bytes)):
+                            try:
+                                data[r_idx][c_idx] = str(cell)
+                            except Exception:
+                                data[r_idx][c_idx] = ""
+
+                col_width = max(60, int((pagesize[0] - 48) / max(1, len(df.columns))))
+                table = Table(data, repeatRows=1, colWidths=[col_width] * len(df.columns))
+                table.setStyle(TableStyle([
+                    ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f8f8f8")),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 8),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ]))
+                elems.append(table)
+                doc.build(elems)
+                buf.seek(0)
+                return buf.read()
+
+            question_text = st.session_state.get("question", "")
+            sql_text = st.session_state.get("executed_sql", "")
+            exec_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+            summary = {
+                "rows": len(results_df),
+                "columns": len(results_df.columns),
+                "numeric": len(results_df.select_dtypes(include="number").columns)
+            }
+
+            btn_col1, btn_col2 = st.columns([3, 1], gap="small")
+            with btn_col1:
+                if st.button("Export Excel"):
+                    try:
+                        excel_bytes = _generate_excel_bytes(results_df, question_text, sql_text, exec_time)
+                        st.success("Excel file generated. Click to download.")
+                        st.download_button(
+                            label="Download Excel",
+                            data=excel_bytes,
+                            file_name=f"nl_sql_report_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                    except ImportError as ie:
+                        st.error(str(ie))
+                    except Exception as e:
+                        st.error(f"Excel export failed: {str(e)}")
+
+            with btn_col2:
+                if st.button("Export PDF"):
+                    try:
+                        pdf_bytes = _generate_pdf_bytes(results_df, question_text, sql_text, exec_time, summary)
+                        st.success("PDF report generated. Click to download.")
+                        st.download_button(
+                            label="Download PDF",
+                            data=pdf_bytes,
+                            file_name=f"nl_sql_report_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.pdf",
+                            mime="application/pdf"
+                        )
+                    except ImportError as ie:
+                        st.error(str(ie))
+                    except Exception as e:
+                        st.error(f"PDF export failed: {str(e)}")
 
 # --------------------------------------------------
 # CHARTS
@@ -518,20 +729,23 @@ if "results_df" in st.session_state:
     results_df = st.session_state.results_df
 
     if not results_df.empty:
-        col1, col2, col3 = st.columns([2.5, 1.5, 6], gap="small", vertical_alignment="center")
+        st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([2.5, 1.2, 6], gap="small", vertical_alignment="center")
         with col1:
             st.subheader("Visualization")
         with col2:
             chart_type = st.selectbox(
                 "Chart Type",
-                ["Bar", "Line", "Pie", "Scatter", "Auto"],
-                index=4,
+                ["No Chart", "Bar", "Line", "Pie", "Scatter", "Auto"],
+                index=1,
                 key="chart_type_selector",
                 label_visibility="collapsed"
             )
 
         try:
-            if chart_type == "Auto":
+            if chart_type == "No Chart":
+                fig = None
+            elif chart_type == "Auto":
                 fig = create_chart(results_df, st.session_state.question)
             else:
                 import plotly.express as px
@@ -539,7 +753,6 @@ if "results_df" in st.session_state:
                 categorical_cols = results_df.select_dtypes(include="object").columns.tolist()
 
                 if not numeric_cols:
-                    st.warning("No numeric columns available for charting")
                     fig = None
                 else:
                     x_col = categorical_cols[0] if categorical_cols else numeric_cols[0]
@@ -558,16 +771,17 @@ if "results_df" in st.session_state:
                     else:
                         fig = create_chart(results_df, st.session_state.question)
 
-            if fig:
+            if fig is not None and chart_type != "No Chart":
                 fig.update_layout(
-                    font=dict(family="Inter, sans-serif"),
-                    title_font=dict(size=18),
+                    font=dict(family="Inter, sans-serif", color="#ffffff"),
+                    title_font=dict(size=18, color="#ffffff"),
                     plot_bgcolor="rgba(0,0,0,0)",
                     paper_bgcolor="rgba(0,0,0,0)",
+                    font_color="#ffffff",
                     margin=dict(t=60, l=20, r=20, b=20)
                 )
                 st.plotly_chart(fig, use_container_width=True)
-            else:
+            elif chart_type != "No Chart":
                 st.info("No suitable chart could be generated.")
 
         except Exception as e:

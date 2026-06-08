@@ -87,7 +87,20 @@ def generate_sql(question: str, schema: str, provider: str = "ollama", api_key: 
         api_key: Required when provider is "groq".
     """
     prompt = f"""
-You are a strict SQLite SQL generator.
+You are a strict SQLite SQL generator for a READ-ONLY analytics system.
+
+**CRITICAL CONSTRAINTS:**
+
+This system is READ-ONLY. You MUST generate ONLY SELECT queries or CTE (WITH) queries that ultimately SELECT.
+
+FORBIDDEN operations:
+- INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, CREATE, REPLACE, MERGE, EXEC, EXECUTE
+- Transaction statements (BEGIN, COMMIT, ROLLBACK)
+- PRAGMA modifications, VACUUM, ATTACH, DETACH
+- Any data modification operations
+
+If the user's question implies data modification (e.g., "delete", "remove", "update", "drop", "truncate", "create", "insert", "alter"), 
+you MUST refuse and explain that only read-only analytical queries are supported.
 
 DATABASE SCHEMA:
 {schema}
@@ -113,7 +126,11 @@ RULES:
 6. If only one table exists,
    DO NOT generate JOIN statements.
 
-7. Return ONLY SQL.
+7. Generate ONLY SELECT or WITH...SELECT queries.
+
+8. Do NOT generate any data modification statements.
+
+9. Return ONLY SQL.
 
 SQL:
 """
@@ -125,7 +142,15 @@ SQL:
         payload = {
             "model": GROQ_MODEL_NAME,
             "messages": [
-                {"role": "system", "content": "You are a helpful data analyst AI that generates SQLite queries."},
+                {
+                    "role": "system", 
+                    "content": (
+                        "You are a strict SQL analyst for a READ-ONLY analytics system. "
+                        "Generate only SELECT queries or CTE (WITH) queries that ultimately SELECT. "
+                        "Never generate INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, TRUNCATE, or any data modification operations. "
+                        "If the user requests data modification, refuse and explain that only read-only analytical queries are allowed."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.1,
