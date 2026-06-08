@@ -11,7 +11,7 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 |------------|--------|
 | Sridharan C | [Resume](https://drive.google.com/file/d/1FsqizgchbN_-73A9V6yPBhQreOPBwpUN/view?usp=sharing) |
 | Sriram N   | [Resume](https://drive.google.com/drive/u/0/folders/1V8Tf_3PZyQ0Hsf8bBuMQUSzmzv4wgu_G) |
-| Srivignesh | Coming Soon |
+| Srivignesh | [Resume](https://drive.google.com/file/d/1-N6MOkGysS2qRopJ5hQr5CmTLSjQbEkX/view?usp=sharing)|
 | Suganth ST | [Resume](https://drive.google.com/file/d/1GlhLYtRdVSE9zurK_ghuQYb2QQwn3nBa/view?usp=drivesdk)
 
 
