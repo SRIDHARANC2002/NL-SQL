@@ -17,15 +17,13 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 
 ---
 # Watch the project demonstration here:
-
 # Demo Video
 
 <p align="center">
   <a href="https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d">
-    <img src="VIDIO/C:\Users\sridh\Downloads\NL-SQL\VIDIO\NL → SQL Analytics Agent.mp4" alt="Demo Video" width="900">
+    <img src="VIDIO/demo-thumbnail.png" alt="Demo Video" width="900">
   </a>
 </p>
-
 
 [Demo Video](https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d)
 
