@@ -3,7 +3,4 @@ pandas>=2.0.0
 plotly>=5.18.0
 requests>=2.31.0
 pytest>=8.0.0
-<<<<<<< HEAD
-mcp>=1.0.0
-=======
->>>>>>> b3bf8147d3c230a9960da7d25a0498a3266af2b7
+
