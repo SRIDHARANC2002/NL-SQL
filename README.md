@@ -27,7 +27,7 @@ https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d
 
 [SAMPLE_DATA](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
 
-# AI Usage Documentation
+### AI Usage Documentation
 
 [AI_Usage_Note](https://drive.google.com/file/d/1TgNQUC9i-VOHdUleyI0fE7nAzE69V-9K/view?usp=sharing)
 
