@@ -18,7 +18,7 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 ---
 # Watch the project demonstration here:
 ## Demo Video
-https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d
+[DEMO VIDIO]https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d
 
 [TEST_CASES](https://drive.google.com/file/d/1VN-3022g7z472LWMhexhhLpSEvWr-SNS/view?usp=sharing)
 
