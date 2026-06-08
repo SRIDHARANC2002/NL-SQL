@@ -21,6 +21,13 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d
 [Demo Video](https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d)
 
+<h1>Demo Video</h1>
+
+<p align="center">
+  <a href="https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d">
+    <img src="VIDIO/demo-thumbnail.png" alt="Demo Video" width="900">
+  </a>
+</p>
 
 [TEST_CASES](https://drive.google.com/file/d/1VN-3022g7z472LWMhexhhLpSEvWr-SNS/view?usp=sharing)
 
