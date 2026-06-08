@@ -114,7 +114,7 @@ The platform supports both local and cloud LLM providers through a provider-sele
 ---
 
 # Architecture Flow
-
+![alt text](architecture.png)
 ```text
 User Uploads Dataset / Database
             ↓
