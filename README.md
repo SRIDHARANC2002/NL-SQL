@@ -140,11 +140,8 @@ The platform supports both local and cloud LLM providers through a provider-sele
 NL-TO-SQL-AGENT-main/
 │
 ├── .gitignore
-├── AI_Usage_Note.md
 ├── README.md
 ├── requirements.txt
-├── retail_sales.css
-├── TEST_CASES.md
 │
 ├── app.py
 ├── create_db.py
@@ -152,7 +149,6 @@ NL-TO-SQL-AGENT-main/
 │
 ├── agent/
 │   ├── agent_loop.py
-│   ├── mcp_tools.py
 │   ├── chart_generator.py
 │   ├── explanation_generator.py
 │   ├── insight_generator.py
@@ -164,8 +160,6 @@ NL-TO-SQL-AGENT-main/
 │
 ├── database/
 │   ├── dynamic_db.py
-│   ├── test_sales.db
-│   └── uploaded_data.db
 │
 │
 ├── sample_data/
