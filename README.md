@@ -20,8 +20,6 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 ## Demo Video
 https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d
 
-<!-- [Demo Video](https://www.loom.com/share/215ad71c7b4a47fb821a74b06da7763d) -->
-
 [TEST_CASES](https://drive.google.com/file/d/1VN-3022g7z472LWMhexhhLpSEvWr-SNS/view?usp=sharing)
 
 [SAMPLE_DATA](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
@@ -203,19 +201,6 @@ The sidebar allows switching between:
 * External (Groq API)
 
 Groq API keys are loaded securely through the `.env` file.
-
----
-
-# MCP Integration
-
-The project includes MCP tools for schema access and future AI tool integration.
-
-Available MCP Tools:
-
-* get_schema()
-* Database metadata access
-
----
 
 # Agent Loop
 
