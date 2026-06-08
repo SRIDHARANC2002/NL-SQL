@@ -413,6 +413,9 @@ The application enforces a strict read-only execution model.
 
 * SELECT
 * WITH (CTE)
+* JOIN
+* AVERAGE
+* SUM
 
 ## Blocked Queries
 
