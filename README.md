@@ -116,38 +116,6 @@ The platform supports both local and cloud LLM providers through a provider-sele
 # Architecture Flow
 ![alt text](architecture.png)
 ```text
-User Uploads Dataset / Database
-            ↓
-Schema Discovery
-            ↓
-Dataset Summary Generation
-            ↓
-User Enters Natural Language Question
-            ↓
-Provider Selection
-(Ollama or Groq)
-            ↓
-Agent Loop
-            ↓
-Generate SQL
-            ↓
-Validate SQL
-            ↓
-Execute SQL
-            ↓
-Retry if Needed
-            ↓
-Manual SQL Editing (Optional)
-            ↓
-Generate Explanation
-            ↓
-Generate Business Insights
-            ↓
-Results Summary
-            ↓
-Results Table
-            ↓
-Interactive Visualizations
 
 ```
 
