@@ -26,7 +26,6 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 
 # AI Usage Documentation
 
-Detailed AI usage notes are available in:
 [AI_Usage_Note](https://drive.google.com/file/d/1TgNQUC9i-VOHdUleyI0fE7nAzE69V-9K/view?usp=sharing)
 
 # What the app does
