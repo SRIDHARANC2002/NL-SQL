@@ -20,14 +20,14 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 
 [Demo Video](https://drive.google.com/file/d/1gYotbmAP1YiK5HqpsCj6UzSHA4e389Gy/view?usp=sharing)
 
-[TEST_CASES.txt](https://drive.google.com/file/d/1hPyKMJ9VnmND1YhonZ5B9zJPWitG9zCH/view?usp=sharing)
+[TEST_CASES](https://drive.google.com/file/d/1tqwR3Mdw86LlXqOjWzknMWOT0hk2TVvK/view?usp=sharing)
 
 [SampleData](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
 
 # AI Usage Documentation
 
 Detailed AI usage notes are available in:
-[AI_Usage_Note](https://drive.google.com/file/d/1d-h_Skb19jjVHGGMdkVTKDBGQxIeKwxH/view?usp=sharing)
+[AI_Usage_Note](https://drive.google.com/file/d/1TgNQUC9i-VOHdUleyI0fE7nAzE69V-9K/view?usp=sharing)
 
 # What the app does
 
@@ -466,15 +466,6 @@ The application enforces a strict read-only execution model.
 
 ---
 
-# Deliverables
-
-* Source Code Repository
-* README Documentation
-* AI Usage Note
-* Test Cases
-* Sample Datasets
-* Demo Video
-* Team Member Resumes
 
 ---
 
