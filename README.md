@@ -20,7 +20,7 @@ It validates the generated SQL, executes it on SQLite, explains the result, and 
 
 [Demo Video](https://drive.google.com/file/d/1gYotbmAP1YiK5HqpsCj6UzSHA4e389Gy/view?usp=sharing)
 
-[TEST_CASES](https://drive.google.com/file/d/1tqwR3Mdw86LlXqOjWzknMWOT0hk2TVvK/view?usp=sharing)
+[TEST_CASES](https://drive.google.com/file/d/1VN-3022g7z472LWMhexhhLpSEvWr-SNS/view?usp=sharing)
 
 [SampleData](https://drive.google.com/file/d/1G6eOmasd9YvDk9NlTGZQVVxxtEEa_5K7/view?usp=sharing)
 
