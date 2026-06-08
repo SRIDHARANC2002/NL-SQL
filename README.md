@@ -201,15 +201,6 @@ NL-TO-SQL-AGENT-main/
 │   ├── test_sales.db
 │   └── uploaded_data.db
 │
-├── Demo/
-│   └── Demo_Video_Link.md
-│
-├── docs/
-│   └── ai_usage_note.md
-│
-├── Resume/
-│   ├── Sridharan_Resume.pdf
-│   └── Team_Member_Resume.pdf
 │
 ├── sample_data/
 │   ├── analytics_poc (1).db
