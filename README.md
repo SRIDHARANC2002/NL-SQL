@@ -1,5 +1,5 @@
 
-# NL → SQL Analytics Agent [LINL](https://sridharanc2002-nl-sql-app-4ye0ua.streamlit.app/)
+# NL → SQL Analytics Agent [LINK](https://sridharanc2002-nl-sql-app-4ye0ua.streamlit.app/)
 
 A Streamlit analytics assistant that converts your plain-English questions into **safe, read-only SQLite (SELECT) queries** over your uploaded dataset.
 
